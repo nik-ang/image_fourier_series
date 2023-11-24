@@ -19,13 +19,15 @@ class image(object):
 		dimensions = (new_width, int(new_width * ratio))
 		return cv.resize(self.image, dimensions)
 	
-	def fourier_series2D(self, max_width):
-		f = np.fft.fft2(self.resize(max_width))
-		f = np.fft.fftshift(f)
+	def fourier_series2D(self, max_width: int, f: np.ndarray = None):
+
+		if f is None:
+			f = np.fft.fft2(self.resize(max_width))
+			f = np.fft.fftshift(f)
 
 		N = self.resize(max_width).shape
 		n_coords = (np.arange(0, N[0]), np.arange(0, N[1]))
-		relative_bw = (0.1, 0.1)
+		relative_bw = (1, 1)
 
 		band_slice = (
 			int(relative_bw[0] * N[0]),
@@ -51,18 +53,12 @@ class image(object):
 		)
 
 		f_k_tensor = f[-slice_indices[0] : slice_indices[0], -slice_indices[1] : slice_indices[1]]
-		plt.imshow(np.log(np.abs(f_k_tensor)))
-		plt.show()
 
 		x_nm = np.tensordot(f_k_tensor, exp_tensor[0], axes=(0, 1))
 		x_nm = np.tensordot(x_nm, exp_tensor[1], axes=(0, 1))
 		x_nm = x_nm / (N[0] * N[1])
 
-		plt.imshow(np.real(x_nm), cmap="gray")
-		plt.show()
-
 		return np.real(x_nm) 
-		
 		
  
 	def show(self, max_width = 1000):
@@ -71,19 +67,45 @@ class image(object):
 		cv.waitKey(0)
 		cv.destroyAllWindows()
 
-	def show_series(self, max_width = 1000):
+	def show_series_as_image(self, max_width = 1000):
 		series = self.fourier_series2D(max_width)
 		cv.namedWindow(self.name, cv.WINDOW_AUTOSIZE)
-		cv.imshow(self.name, series)
+		cv.imshow(self.name, series.astype(np.uint8))
 		cv.waitKey(0)
 		cv.destroyAllWindows()
+
+	def plot_fourier_series(self, max_width = 1000):
+		fourier_transform = np.fft.fft2(self.resize(max_width))
+		fourier_transform = np.fft.fftshift(fourier_transform)
+		fourier_series = self.fourier_series2D(max_width=max_width, f=fourier_transform)
+
+		plt.style.use("dark_background")
+		fig = plt.figure()
+
+		ax1 = plt.subplot(221)
+		ax1.imshow(self.resize(max_width), cmap='gray')
+		ax1.set_axis_off()
+		ax1.set_title("Original Image")
+
+		ax2 = plt.subplot(222)
+		ax2.imshow(np.log(np.abs(fourier_transform)))
+		ax2.set_title("Spectrum")
+
+		ax3 = plt.subplot(2,2, (3, 4))
+		ax3.imshow(fourier_series, cmap="gray")
+		ax3.set_axis_off()
+		ax3.set_title("Fourier Series")
+
+		fig.tight_layout(pad=0.5)
+		plt.show()
 
 
 
 def main():
 	photo = image('mri.jpg', "mri picture")
-	photo.show()
-	photo.show_series()
+	#photo.show()
+	#photo.show_series_as_image(1000)
+	photo.plot_fourier_series()
 	
 
 
