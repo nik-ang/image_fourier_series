@@ -25,7 +25,7 @@ class image(object):
 
 		N = self.resize(max_width).shape
 		n_coords = (np.arange(0, N[0]), np.arange(0, N[1]))
-		relative_bw = (1, 1)
+		relative_bw = (0.1, 0.1)
 
 		band_slice = (
 			int(relative_bw[0] * N[0]),
@@ -36,8 +36,8 @@ class image(object):
 			np.arange(-int(band_slice[1] / 2), int(band_slice[1] / 2))	
 		)
 		nk_mesh = (
-			np.meshgrid(n_coords[0], k_tensor[0], indexing="xy"),
-			np.meshgrid(n_coords[1], k_tensor[1], indexing="xy")
+			np.meshgrid(n_coords[0], k_tensor[0], indexing="ij"),
+			np.meshgrid(n_coords[1], k_tensor[1], indexing="ij")
 		)
 		
 		exp_tensor = (
@@ -54,13 +54,14 @@ class image(object):
 		plt.imshow(np.log(np.abs(f_k_tensor)))
 		plt.show()
 
-		x_f = np.tensordot(f_k_tensor, exp_tensor[0], axes=(0, 0))
-		x_f = np.tensordot(x_f, exp_tensor[1], axes=(0, 0))
+		x_nm = np.tensordot(f_k_tensor, exp_tensor[0], axes=(0, 1))
+		x_nm = np.tensordot(x_nm, exp_tensor[1], axes=(0, 1))
+		x_nm = x_nm / (N[0] * N[1])
 
-		plt.imshow(np.real(x_f), cmap="gray")
+		plt.imshow(np.real(x_nm), cmap="gray")
 		plt.show()
 
-		return np.real(x_f) / (N[0] * N[1])
+		return np.real(x_nm) 
 		
 		
  

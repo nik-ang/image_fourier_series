@@ -46,15 +46,15 @@ def fourier_series2(signal: np.ndarray, relative_bw: float = 1):
 	k_array = np.arange(-int(band_slice / 2), int(band_slice / 2))
 
 	print("relative bandwidth used:", relative_bw)
-	x_f = np.zeros(N)
 	
-	nk_mesh = np.meshgrid(n_array, k_array, indexing="xy")
-	e_mesh = np.exp(1j * 2*np.pi / N * nk_mesh[0]*nk_mesh[1])
+	nk_mesh = np.meshgrid(n_array, k_array, indexing="ij")
+	e_tensor = np.exp(1j * 2*np.pi / N * nk_mesh[0]*nk_mesh[1])
 	slice_index = int((N + band_slice) / 2)
 	f_k = f[-slice_index : slice_index]
 
-	x_f = np.tensordot(f_k, e_mesh, axes=(0, 0))
-	return np.real(x_f) / N
+	x_n = np.tensordot(f_k, e_tensor, axes=(0, 1))
+	x_n = x_n / N
+	return np.real(x_n)
 
 
 def main():
@@ -65,7 +65,7 @@ def main():
 	print("array length {}".format(t.shape[0]))
 	print("shape length {}".format(shape_length))
 
-	x_f = fourier_series2(x, relative_bw=1)
+	x_f = fourier_series2(x, relative_bw=0.1)
 	#x_f = fourier_series(x, relative_bw=0.1)
 
 	plt.plot(t, x_f, label="Fourier Series")
