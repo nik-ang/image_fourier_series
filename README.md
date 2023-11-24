@@ -100,25 +100,25 @@ $$
 The problem with this is that allocating a 4D array requires Petabytes of memor, which is why the $E$ tensor has to be treated as the outer product of two tensors of second order
 
 $$
-	x^{nm} = \frac{1}{N_1 N_2} f^{\mu \nu} \Alpha^{n\mu}\Beta^{m\nu}
+	x^{nm} = \frac{1}{N_1 N_2} f^{\mu \nu} A^{n\mu}B^{m\nu}
 $$
 
 First, we find the product
 
 $$
-	f^{\mu \nu}\Alpha^{n\mu} = \Gamma^{\nu n}
+	f^{\mu \nu}A^{n\mu} = \Gamma^{\nu n}
 $$
 
 Then
 
 $$
-	\Gamma^{\nu n} \Beta^{m\nu} = \Chi^{nm}
+	\Gamma^{\nu n} B^{m\nu} = X^{nm}
 $$
 
 and finally
 
 $$
-	x^{nm} = \frac{1}{N_1 N_2} \Chi^{nm}
+	x^{nm} = \frac{1}{N_1 N_2} X^{nm}
 $$
 
 The generation of the meshes and tensors is analogue to the 1D version but using tuples of meshes. The final tensor product is
